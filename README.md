@@ -139,7 +139,7 @@ This repository contains the implementation of an API for managing employees and
 - **Method**: `GET`
 - **Description**: Retrieves the available meeting slots for the given list of employees.
 - **Query Parameters**:
-    - `employeeIds`: List of employee IDs (e.g., `1&employeeIds=2&employeeIds=3`)
+    - `employeeIds`: List of employee IDs (e.g., `employeeIds=1&employeeIds=2&employeeIds=3`)
     - `requestedStartTime`: The start time for the slot search (e.g., `2024-11-05T09:00:00`)
     - `durationMinutes`: The duration of the meeting in minutes (e.g., `30`)
 
