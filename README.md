@@ -252,6 +252,7 @@ This repository contains the implementation of an API for managing employees and
 
 - **Spring Boot** for backend development
 - **Spring Data JPA** for database interaction
+- **H2 Database** for in-memory database
 - **Lombok** for code simplification
 - **Java 21** as the runtime environment
 - **Maven** for project management
