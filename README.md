@@ -197,6 +197,19 @@ This repository contains the implementation of an API for managing employees and
 {
   "conflictedEmployees": [
     {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "calendarSlots": [
+        {
+          "id": 3,
+          "startTime": "2024-11-05T10:00:00",
+          "endTime": "2024-11-05T10:30:00",
+          "available": false
+        }
+      ]
+    },
+    {
       "id": 2,
       "name": "Alice Johnson",
       "email": "alice.johnson@example.com",
@@ -224,6 +237,7 @@ This repository contains the implementation of an API for managing employees and
     }
   ]
 }
+
 ```
 
 ---
