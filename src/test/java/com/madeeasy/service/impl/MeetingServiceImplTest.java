@@ -1,6 +1,7 @@
 package com.madeeasy.service.impl;
 
 import com.madeeasy.dto.request.MeetingRequestDTO;
+import com.madeeasy.dto.response.CalendarSlotResponseDTO;
 import com.madeeasy.dto.response.MeetingResponseDTO;
 import com.madeeasy.entity.CalendarSlot;
 import com.madeeasy.entity.Employee;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -95,14 +97,21 @@ class MeetingServiceImplTest {
 
     @Test
     void bookMeeting_ValidRequest_SavesMeeting() {
+        // Prepare test data
         Employee admin = new Employee();
         admin.setId(1L);
+        admin.setName("Admin Name");
+        admin.setEmail("admin@example.com");
 
         Employee participant1 = new Employee();
         participant1.setId(2L);
+        participant1.setName("Participant 1");
+        participant1.setEmail("participant1@example.com");
 
         Employee participant2 = new Employee();
         participant2.setId(3L);
+        participant2.setName("Participant 2");
+        participant2.setEmail("participant2@example.com");
 
         Meeting savedMeeting = new Meeting();
         savedMeeting.setId(1L);
@@ -110,17 +119,22 @@ class MeetingServiceImplTest {
         savedMeeting.setStartTime(startTime);
         savedMeeting.setEndTime(endTime);
 
-        when(employeeService.employeeExists(anyLong())).thenReturn(true);
-        when(employeeRepository.findAllById(anyList())).thenReturn(List.of(participant1, participant2));
-        when(calendarSlotRepository.existsByEmployeeAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(any(), any(), any())).thenReturn(false);
-        when(meetingRepository.save(any(Meeting.class))).thenReturn(savedMeeting);
+        // Mocking service methods
+        when(employeeService.employeeExists(anyLong())).thenReturn(true); // Mock for employeeExists
+        when(employeeRepository.findAllById(anyList())).thenReturn(List.of(participant1, participant2)); // Mock findAllById
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(admin)); // Mock for finding admin by ID
+        when(calendarSlotRepository.existsByEmployeeAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(any(), any(), any())).thenReturn(false); // No conflicts
+        when(meetingRepository.save(any(Meeting.class))).thenReturn(savedMeeting); // Mock saving the meeting
 
+        // Execute the service method
         MeetingResponseDTO response = meetingService.bookMeeting(meetingRequestDTO);
 
-        assertNotNull(response);
-        assertEquals(savedMeeting.getId(), response.getId());
-        assertEquals(savedMeeting.getTopic(), response.getTopic());
+        // Assertions
+        assertNotNull(response, "Response should not be null");
+        assertEquals(savedMeeting.getId(), response.getId(), "Meeting ID should match");
+        assertEquals(savedMeeting.getTopic(), response.getTopic(), "Meeting topic should match");
     }
+
 
     @Test
     void findConflictedParticipants_WithConflicts_ReturnsConflictedEmployees() {
@@ -151,15 +165,25 @@ class MeetingServiceImplTest {
         availableSlot.setEndTime(endTime);
         availableSlot.setAvailable(true);
 
+        // Create an Employee object and associate it with the CalendarSlot
+        Employee employee = new Employee();
+        employee.setId(1L);
+        availableSlot.setEmployee(employee);  // Set the Employee on the CalendarSlot
+
         // No meetings scheduled for the employee, so the slot should be available
         when(calendarSlotRepository.findByEmployeeId(anyLong())).thenReturn(List.of(availableSlot));
         when(meetingRepository.findByEmployeeId(anyLong())).thenReturn(List.of());
 
-        List<CalendarSlot> availableSlots = meetingService.getAvailableSlots(List.of(1L), LocalDateTime.of(LocalDate.of(2023, 1, 1), startTime.toLocalTime()), 60);
+        List<CalendarSlotResponseDTO> availableSlots = meetingService.getAvailableSlots(
+                List.of(1L),
+                LocalDateTime.of(LocalDate.of(2023, 1, 1), startTime.toLocalTime()),
+                60
+        );
 
         assertEquals(1, availableSlots.size(), "Expected one available slot");
         assertTrue(availableSlots.get(0).isAvailable(), "The slot should be marked as available");
     }
+
 
 
     @Test
@@ -178,7 +202,7 @@ class MeetingServiceImplTest {
         when(calendarSlotRepository.findByEmployeeId(2L)).thenReturn(List.of(slot));
         when(meetingRepository.findByEmployeeId(2L)).thenReturn(List.of(conflictingMeeting));
 
-        List<CalendarSlot> availableSlots = meetingService.getAvailableSlots(List.of(2L), startTime, 60);
+        List<CalendarSlotResponseDTO> availableSlots = meetingService.getAvailableSlots(List.of(2L), startTime, 60);
 
         assertTrue(availableSlots.isEmpty());
     }
