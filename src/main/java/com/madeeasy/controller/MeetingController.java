@@ -1,6 +1,7 @@
 package com.madeeasy.controller;
 
 import com.madeeasy.dto.request.MeetingRequestDTO;
+import com.madeeasy.dto.response.CalendarSlotResponseDTO;
 import com.madeeasy.dto.response.ConflictResponseDTO;
 import com.madeeasy.dto.response.MeetingResponseDTO;
 import com.madeeasy.entity.CalendarSlot;
@@ -31,7 +32,7 @@ public class MeetingController {
             @RequestParam List<Long> employeeIds,
             @RequestParam LocalDateTime requestedStartTime,
             @RequestParam int durationMinutes) {
-        List<CalendarSlot> slots = meetingService.getAvailableSlots(employeeIds, requestedStartTime, durationMinutes);
+        List<CalendarSlotResponseDTO> slots = meetingService.getAvailableSlots(employeeIds, requestedStartTime, durationMinutes);
         return ResponseEntity.ok(slots);
     }
 

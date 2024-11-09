@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class CalendarSlotResponseDTO {
 
     private Long id;
+    private EmployeeResponseDTO employee;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private boolean isAvailable;

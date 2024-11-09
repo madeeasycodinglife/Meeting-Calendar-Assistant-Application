@@ -1,6 +1,7 @@
 package com.madeeasy.service;
 
 import com.madeeasy.dto.request.MeetingRequestDTO;
+import com.madeeasy.dto.response.CalendarSlotResponseDTO;
 import com.madeeasy.dto.response.MeetingResponseDTO;
 import com.madeeasy.entity.CalendarSlot;
 import com.madeeasy.entity.Employee;
@@ -14,5 +15,5 @@ public interface MeetingService {
     List<Employee> findConflictedParticipants(LocalDateTime requestedStartTime,
                                               int durationMinutes);
 
-    List<CalendarSlot> getAvailableSlots(List<Long> employeeIds, LocalDateTime requestedStartTime, int durationMinutes);
+    List<CalendarSlotResponseDTO> getAvailableSlots(List<Long> employeeIds, LocalDateTime requestedStartTime, int durationMinutes);
 }

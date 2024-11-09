@@ -60,10 +60,16 @@ public class MeetingServiceImpl implements MeetingService {
         }
 
         // Retrieve participants from database
-        List<Employee> participants = employeeRepository.findAllById(request.getParticipantIds());
+        List<Employee> participants = new ArrayList<>(employeeRepository.findAllById(request.getParticipantIds()));
+
         if (participants.size() != request.getParticipantIds().size()) {
             throw new ResourceNotFoundException("One or more participants not found.");
         }
+
+        Employee adminParticipant = this.employeeRepository.findById(request.getAdminId()).get();
+
+        // add admin to participants
+        participants.add(adminParticipant);
 
         // Check for scheduling conflicts in CalendarSlots
         for (Employee participant : participants) {
@@ -146,12 +152,13 @@ public class MeetingServiceImpl implements MeetingService {
         return conflictingParticipants;
     }
 
+    @Transactional(readOnly = true)
     // Check if the requested slot conflicts with any existing meeting
     @Override
-    public List<CalendarSlot> getAvailableSlots(List<Long> employeeIds,
-                                                LocalDateTime requestedStartTime,
-                                                int durationMinutes) {
-        List<CalendarSlot> availableSlots = new ArrayList<>();
+    public List<CalendarSlotResponseDTO> getAvailableSlots(List<Long> employeeIds,
+                                                           LocalDateTime requestedStartTime,
+                                                           int durationMinutes) {
+        List<CalendarSlotResponseDTO> availableSlots = new ArrayList<>();
 
         // Calculate the requested end time based on the requested start time and duration
         LocalDateTime requestedEndTime = requestedStartTime.plusMinutes(durationMinutes);
@@ -181,7 +188,18 @@ public class MeetingServiceImpl implements MeetingService {
                     if (slot.getStartTime().isAfter(requestedStartTime) && slot.getStartTime().isAfter(requestedEndTime)
                             || slot.getEndTime().isBefore(requestedStartTime) && slot.getEndTime().isBefore(requestedEndTime)) {
                         slot.setAvailable(true);
-                        availableSlots.add(slot);
+                        availableSlots.add(CalendarSlotResponseDTO.builder()
+                                .id(slot.getId())
+                                .employee(EmployeeResponseDTO.builder()
+                                        .id(slot.getEmployee().getId())
+                                        .name(slot.getEmployee().getName())
+                                        .email(slot.getEmployee().getEmail())
+                                        .build())
+                                .startTime(slot.getStartTime())
+                                .endTime(slot.getEndTime())
+                                .isAvailable(slot.isAvailable())
+                                .build()
+                        );
                     }
                 }
             }
