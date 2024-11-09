@@ -61,10 +61,16 @@ This repository contains the implementation of an API for managing employees and
   },
   {
     "id": 2,
-    "name": "Jane Smith",
-    "email": "jane.smith@example.com"
+    "name": "Alice Johnson",
+    "email": "alice.johnson@example.com"
+  },
+  {
+    "id": 3,
+    "name": "Bob Brown",
+    "email": "bob.brown@example.com"
   }
 ]
+
 ```
 
 ---
